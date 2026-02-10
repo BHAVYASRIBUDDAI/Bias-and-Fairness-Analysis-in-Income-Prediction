@@ -119,6 +119,15 @@ populations and can change under deployment, even when accuracy remains strong.
 - Fairness must be explicitly evaluated and monitored
 
 ---
+Limitations & Future Work
+Only simple classifiers and post-processing mitigation techniques were explored.
+The analysis focuses on a limited set of sensitive attributes and fairness metrics.
+Results are based on tabular census data and may not generalize to other domains.
+
+Future work could include:
+Evaluating in-processing or adversarial fairness mitigation methods.
+Extending the analysis to multiple sensitive attributes simultaneously.
+Studying fairness–accuracy trade-offs across a wider range of distribution shifts.
 
 ---
 
