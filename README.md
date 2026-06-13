@@ -1,155 +1,155 @@
 # Bias and Fairness Analysis in Income Prediction
 
-This project studies bias and fairness in machine learning models for income
-prediction using the Folktables (ACS Income) dataset. The goal is to understand
-whether commonly used models treat demographic groups fairly and how fairness
-behaves when models are improved or deployed in new settings.
-
-Rather than focusing only on accuracy, this project explicitly evaluates
-fairness metrics and examines how they change with model choice and data
-distribution shift.
+> **Can a high-accuracy model still be unfair?**  
+> This project shows yes — and demonstrates how to detect, measure, and reduce that unfairness.
 
 ---
 
-## Motivation
+## Key Results at a Glance
 
-Machine learning systems are increasingly used in high-stakes decision-making
-domains such as hiring, lending, and income estimation. While these systems are
-often optimized for predictive accuracy, high accuracy alone does not guarantee
-fair treatment across demographic groups.
+| | Logistic Regression (CA) | Gradient Boosting (CA) | Gradient Boosting (TX) |
+|---|---|---|---|
+| **Accuracy** | 0.79 | 0.81 | 0.79 |
+| **Equal Opportunity Gap** | 0.12 | lower | slightly higher |
+| **Demographic Parity Gap** | 0.16 | lower | 0.19 ↑ |
+| **Post-mitigation DP Gap** | ~0.11 | — | — |
 
-This project is motivated by the following questions:
-- Can a standard baseline model exhibit bias even if it performs well?
-- Does using a stronger model automatically reduce bias?
-- Do fairness properties generalize when a model is deployed on new data?
+**Three headline findings:**
+- A baseline Logistic Regression with 79% accuracy still shows a **16% demographic parity gap** by sex
+- Switching to Gradient Boosting improves accuracy **and** reduces bias — but does not eliminate it
+- Cross-state deployment (CA → TX) **increases the DP gap to 19%** even though accuracy stays stable — fairness does not transfer automatically
+
+---
+
+## Visualizations
+
+### Fairness gap: baseline vs post-mitigation
+
+
+### Equal opportunity and demographic parity by model
+![Fairness metrics by model](plots/fairness_metrics_by_model.png)
+
+### Cross-state deployment: CA vs TX fairness shift
+![CA vs TX deployment fairness](plots/cross_state_fairness.png)
+
+### Accuracy–fairness trade-off under threshold mitigation
+![Accuracy fairness tradeoff](plots/accuracy_fairness_tradeoff.png)
+
+---
+
+## Why This Matters
+
+ML systems are increasingly used in high-stakes domains — lending, hiring, income estimation. A model optimised for accuracy alone can systematically disadvantage demographic groups while appearing to perform well on standard benchmarks. This project studies that gap concretely:
+
+- How large is the disparity in a standard baseline?
+- Does a stronger model automatically reduce it?
+- Do fairness properties hold when the model is deployed on new population data?
 
 ---
 
 ## Dataset
 
-- **Dataset:** Folktables (ACS Income, 2018)
-- **Prediction Task:** Binary classification of income (> $50K)
-- **Sensitive Attribute:** Sex (Male = 1, Female = 2)
-- **Training State:** California (CA)
-- **Deployment / Test State:** Texas (TX)
+- **Source:** [Folktables](https://github.com/zykls/folktables) — U.S. Census ACS Income (2018)
+- **Task:** Binary classification — income > $50K
+- **Sensitive attribute:** Sex (Male / Female)
+- **Training state:** California (CA) — ~195K records
+- **Deployment state:** Texas (TX) — distribution shift evaluation
 
-The Folktables dataset is derived from U.S. Census data and is commonly used in
-fairness research due to its real-world relevance and demographic attributes.
-
----
-
-## Baseline Model and Fairness Analysis
-
-We begin with a **Logistic Regression** model trained on California data. This
-model is chosen as a simple and interpretable baseline.
-
-The baseline model is evaluated using:
-- **Accuracy**
-- **Equal Opportunity (EO):** True Positive Rate gap between groups
-- **Demographic Parity (DP):** Difference in positive prediction rates
-
-### Baseline Results (California)
-
-- Accuracy: ~0.79
-- EO Gap: ~0.12
-- DP Gap: ~0.16
-
-These results show that even a standard baseline model with reasonable accuracy
-exhibits significant gender-based disparities.
+Folktables is derived from real U.S. Census data and is a standard benchmark in fairness research.
 
 ---
 
-## Experimental Extensions
+## Experiments
 
-Building on the baseline analysis, we conduct several experiments to study how
-fairness behaves under different conditions.
+### 1. Baseline model and fairness audit
 
----
+A Logistic Regression model is trained on California data and evaluated on both predictive performance and fairness metrics.
 
-### 1. Model Improvement
+**Metrics used:**
+- **Equal Opportunity (EO):** True Positive Rate gap between male and female groups
+- **Demographic Parity (DP):** Difference in positive prediction rates between groups
 
-A **Gradient Boosting** classifier is trained on the same California data and
-compared against the baseline Logistic Regression model.
-
-#### Results (California – Gradient Boosting)
-- Accuracy increases to ~0.81
-- Equal Opportunity gap decreases significantly
-- Demographic Parity gap decreases slightly
-
-This experiment shows that improved modeling can sometimes reduce bias by
-reducing underfitting, but fairness is not guaranteed by accuracy alone.
+**Result:** The baseline achieves 79% accuracy but shows a 12% EO gap and 16% DP gap — significant gender-based disparity despite reasonable performance.
 
 ---
 
-### 2. Fairness Mitigation
+### 2. Does a better model reduce bias?
 
-We apply a simple post-processing mitigation strategy using group-specific
-decision thresholds. The threshold for the disadvantaged group (Female) is
-lowered to reduce the Equal Opportunity gap.
+A Gradient Boosting classifier is trained on the same data and compared to the baseline.
 
-This experiment illustrates the **trade-off between fairness and accuracy** and
-demonstrates that fairness interventions often require explicit design choices.
+**Result:** Accuracy increases to 81% and fairness gaps decrease, but bias is not eliminated. Improving model capacity can reduce underfitting-driven bias, but does not guarantee fairness.
 
 ---
 
-### 3. Cross-State Deployment Evaluation
+### 3. Post-processing fairness mitigation
 
-To simulate real-world deployment, the Gradient Boosting model trained on
-California data is evaluated on Texas data **without retraining**.
+Group-specific decision thresholds are applied — the threshold for the disadvantaged group (Female) is lowered to reduce the Equal Opportunity gap.
 
-This experiment tests whether fairness improvements observed in-distribution
-generalize under data distribution shift.
-
-#### Results (Texas – CA-trained Gradient Boosting)
-- Accuracy remains high (~0.79)
-- Equal Opportunity gap remains relatively small
-- Demographic Parity gap increases
-
-These results highlight that fairness properties are **not stable** across
-populations and can change under deployment, even when accuracy remains strong.
+**Result:** EO gap reduces significantly with less than 2% accuracy loss. This illustrates the classic accuracy–fairness trade-off and shows that fairness requires explicit intervention, not just better modelling.
 
 ---
 
-## Key Observations
+### 4. Cross-state deployment evaluation
 
-- A simple baseline model can exhibit substantial bias
-- Improving model accuracy can reduce bias in some cases, but not reliably
-- Different fairness metrics behave differently under distribution shift
-- Fairness observed during training does not necessarily generalize at deployment
-- Fairness must be explicitly evaluated and monitored
+The CA-trained Gradient Boosting model is evaluated on Texas data **without retraining**, simulating real deployment under distribution shift.
 
----
-Limitations & Future Work
-Only simple classifiers and post-processing mitigation techniques were explored.
-The analysis focuses on a limited set of sensitive attributes and fairness metrics.
-Results are based on tabular census data and may not generalize to other domains.
-
-Future work could include:
-Evaluating in-processing or adversarial fairness mitigation methods.
-Extending the analysis to multiple sensitive attributes simultaneously.
-Studying fairness–accuracy trade-offs across a wider range of distribution shifts.
+**Result:** Accuracy remains at ~0.79, but the Demographic Parity gap increases to 0.19 — higher than the in-distribution result. Fairness properties observed during training **do not generalise** to new populations.
 
 ---
 
-## Reproducibility
+## Technical Stack
 
-All experiments are run on CPU and do not require a GPU. Results can be
-reproduced by running the notebooks in order.
+```
+Python 3.x
+scikit-learn       — Logistic Regression, Gradient Boosting, preprocessing
+folktables         — ACS Census data loader
+pandas / numpy     — data manipulation
+matplotlib         — visualisation
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
-## Conclusion
+## Reproducing Results
 
-This project demonstrates that fairness is not an automatic byproduct of model
-accuracy. While better models can sometimes reduce bias, fairness is sensitive
-to metric choice and deployment context. Explicit fairness evaluation is
-necessary for responsible machine learning systems.
+```bash
+# Clone the repo
+git clone https://github.com/BHAVYASRIBUDDAI/Bias-and-Fairness-Analysis-in-Income-Prediction.git
+cd Bias-and-Fairness-Analysis-in-Income-Prediction
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run notebooks in order
+jupyter notebook notebooks/
+```
+
+Notebooks are numbered and self-contained. All results can be reproduced on CPU — no GPU required.
 
 ---
 
-## Notes
+## Limitations and Future Work
 
-This project prioritizes clarity, interpretability, and real-world relevance
-over model complexity.
+- Only post-processing mitigation (threshold adjustment) was explored. In-processing methods (adversarial debiasing, reweighting) are left for future work.
+- Analysis focuses on sex as the sensitive attribute. Intersectional analysis across sex × race is a natural extension.
+- Results are based on tabular census data and may not generalise to other domains or fairness definitions.
 
+---
 
+## Key Takeaways
+
+1. **High accuracy ≠ fair model.** The baseline is 79% accurate and still shows a 16% DP gap.
+2. **Stronger models can reduce bias but not reliably.** Gradient Boosting helps — it is not a fix.
+3. **Fairness does not transfer across populations.** CA fairness properties degrade on TX data even when accuracy holds.
+4. **Mitigation requires explicit design choices.** Bias does not disappear on its own.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE)
