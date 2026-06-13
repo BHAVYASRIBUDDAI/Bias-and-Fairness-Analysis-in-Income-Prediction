@@ -25,16 +25,13 @@
 
 ### Fairness gap: baseline vs post-mitigation
 
+## Baseline vs Gradient Boosting
 
-### Equal opportunity and demographic parity by model
-![Fairness metrics by model](plots/fairness_metrics_by_model.png)
+![Baseline vs Gradient Boosting](plots/baseline_vs_gradient.png)
 
-### Cross-state deployment: CA vs TX fairness shift
-![CA vs TX deployment fairness](plots/cross_state_fairness.png)
+## Equal Opportunity by Group (CA vs TX)
 
-### Accuracy–fairness trade-off under threshold mitigation
-![Accuracy fairness tradeoff](plots/accuracy_fairness_tradeoff.png)
-
+![Equal Opportunity by Group](plots/equal_opportunity_by_group.png)
 ---
 
 ## Why This Matters
