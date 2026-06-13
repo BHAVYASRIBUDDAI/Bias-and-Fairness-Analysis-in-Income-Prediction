@@ -9,7 +9,7 @@
 
 | | Logistic Regression (CA) | Gradient Boosting (CA) | Gradient Boosting (TX) |
 |---|---|---|---|
-| **Accuracy** | 0.79 | 0.81 | 0.79 |
+| **Accuracy** |0.789 | 0.81 | 0.79 |
 | **Equal Opportunity Gap** | 0.12 | lower | slightly higher |
 | **Demographic Parity Gap** | 0.16 | lower | 0.19 ↑ |
 | **Post-mitigation DP Gap** | ~0.11 | — | — |
